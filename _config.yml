@@ -1,0 +1,5 @@
+title: Bonsthie's Blog
+description: A simple blog for sharing thoughts and ideas in Markdown.
+theme: jekyll-theme-minimal
+markdown: kramdown
+paginate: 5
