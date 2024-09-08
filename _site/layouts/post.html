@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Bonsthie’s Blog | A simple blog for sharing thoughts and ideas in Markdown.</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Bonsthie’s Blog" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A simple blog for sharing thoughts and ideas in Markdown." />
+<meta property="og:description" content="A simple blog for sharing thoughts and ideas in Markdown." />
+<link rel="canonical" href="http://localhost:4000/layouts/post.html" />
+<meta property="og:url" content="http://localhost:4000/layouts/post.html" />
+<meta property="og:site_name" content="Bonsthie’s Blog" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Bonsthie’s Blog" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"A simple blog for sharing thoughts and ideas in Markdown.","headline":"Bonsthie’s Blog","url":"http://localhost:4000/layouts/post.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/assets/css/style.css?v=d7eb91435e78de17c5686a589a146bc342a37551">
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="http://localhost:4000/">Bonsthie's Blog</a></h1>
+
+        
+
+        <p>A simple blog for sharing thoughts and ideas in Markdown.</p>
+
+        
+        <p class="view"><a href="https://github.com/bonsthie/bonsthie.github.io">View the Project on GitHub <small>bonsthie/bonsthie.github.io</small></a></p>
+        
+
+        
+
+        
+      </header>
+      <section>
+
+      <article>
+  <h1></h1>
+  <p><em></em></p>
+  <small>8 September 2024</small>
+<h1>Philo</h1>
+
+<p class="view">by </p>
+
+
+<hr />
+<p>layout: post
+title: “My First Blog Post”
+date: 2024-09-08
+—</p>
+
+<h1 id="why-the-200-philo-limit">Why the 200 philo limit</h1>
+
+<h2 id="what-is-the-philo-problem-">what is the philo problem ?</h2>
+
+<p>The Philosophers Problem, introduced by Edsger Dijkstra in 1965, is a theoretical framework used to illustrate the challenges of resource allocation, synchronization, and deadlock in multi-threaded systems. This problem is commonly used in computer science education to help students and engineers understand how to design systems that handle concurrency safely and efficiently. However, it is not used for benchmarking massively parallel computations or high-performance computing (HPC) systems, as its primary focus is on ensuring correct synchronization and avoiding deadlock, rather than on evaluating computational performance.</p>
+
+<h1 id="why-">WHY ?</h1>
+
+<p>The obvious response might be, “That’s just stupid! We don’t need that many philosophers.” Sure, cranking up the number of philosophers could make verifying the exercise absurdly complex. But hey, that’s not a pragmatic solution, is it? WE ARE PROGRAMMERS. WE NEED CONCRETE ANSWERS! So, buckle up because I’m about to dive deep into why this is a terrible idea—both memory-wise and kernel-wise. I’ll spend the rest of my evening hammering out an article on this, so you don’t have to waste your time going down that rabbit hole.</p>
+
+<h2 id="1-the-memory-problem">1) The Memory Problem</h2>
+
+<p>To understand this issue, we need to dive into how <code class="language-plaintext highlighter-rouge">pthread</code> works under the hood. When a thread is created using <code class="language-plaintext highlighter-rouge">pthread_create</code>, this function internally calls the <code class="language-plaintext highlighter-rouge">clone</code> system call. The <code class="language-plaintext highlighter-rouge">clone</code> syscall creates a new thread as a child of the current process, similar to <code class="language-plaintext highlighter-rouge">fork</code>, but with more granular control over what is shared between the parent and the child process. Unlike <code class="language-plaintext highlighter-rouge">fork</code>, which duplicates the entire process (including memory space), <code class="language-plaintext highlighter-rouge">clone</code> allows the new thread to share resources like memory, file descriptors, and more with the parent process.</p>
+
+<p>In the context of <code class="language-plaintext highlighter-rouge">pthread</code>, <code class="language-plaintext highlighter-rouge">clone</code> is used to create a thread that runs within the same memory space as the parent, meaning all threads in a process can access the same global memory. However, each thread needs its own stack space, which is where <code class="language-plaintext highlighter-rouge">pthread_attr_t</code> comes in. This structure allows you to specify attributes like the size of the stack for the new thread.</p>
+
+<p>If you pass <code class="language-plaintext highlighter-rouge">NULL</code> to <code class="language-plaintext highlighter-rouge">pthread_create</code> for the <code class="language-plaintext highlighter-rouge">pthread_attr_t</code> parameter (as many people do, especially in simple projects), the thread will use default attributes, including a default stack size.  you can see this with the function pthread_attr_getstacksize</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;pthread.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> 
+<span class="p">{</span>
+    <span class="n">pthread_attr_t</span> <span class="n">attr</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">stack_size</span><span class="p">;</span>
+
+    <span class="n">pthread_attr_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">);</span>                     <span class="c1">// Initialize thread attributes</span>
+    <span class="n">pthread_attr_getstacksize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">stack_size</span><span class="p">);</span><span class="c1">// Get default stack size</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Default stack size: %zu bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> ./check_stack_size
+Default stack size: 8388608 bytes
+</code></pre></div></div>
+
+<p>The default stack size is 8 MB. Now, let’s do some quick math. For 200 threads, the total memory used just for stack space would be:</p>
+
+\[total\ memorry\ size = 200×8 Mo=1600 Mo=1,6 Go\]
+
+<p>For a typical PC with 8 GB of RAM, with a few browser tabs open and your code editor running, you’re probably already using 4 to 5 GB of RAM. Adding another 1.6 GB just for the threads in this exercise isn’t trivial—it’s a big chunk of your available memory. That’s memory you could be using for other things, like actually running your programs, compiling code, or, you know, keeping your computer from crashing.</p>
+
+<p>Now, imagine if you bump that number up to 400 or 1000 philosophers or MAX_INT because why not ? <a href="https://emojipedia.org/upside-down-face"><strong>🙃</strong></a> It’s not just a bad idea, it’s a recipe for disaster. Your system could start swapping memory to disk, or worse, grind to a halt under the pressure. You’d be spending more time watching your system struggle than actually solving the problem. And that’s why we put a sensible limit on the number of philosophers so you can focus on the logic and synchronization issues without bringing your entire system to its knees.</p>
+
+<p>However, because of the lazy allocation strategy, the actual physical memory used will depend on how much of the stack each thread actually utilizes. The memory is virtually allocated initially, which means it doesn’t immediately occupy physical RAM. In practice, this often results in much lower memory usage than the theoretical maximum. For example, if the threads only use 10% of their stack space on average, the actual physical memory consumption could be closer to 160 MB instead of 1.6 GB.</p>
+
+<p>This lazy allocation mechanism helps mitigate the impact on memory usage, but it’s still crucial to be mindful of the potential memory requirements when creating a large number of threads especially in resource-constrained environments or when threads are expected to use significant stack space.</p>
+
+<p><a href="Why%20the%20200%20philo%20limit%2008c914b45530494c93f428ec0f67d69a/code%20snippet%20pthread_create%20008e46eb643448a8b74076870555759a.md">code snippet pthread_create</a></p>
+
+<h2 id="2-thread-limits">2) Thread limits</h2>
+
+<p>By default, the maximum number of threads you can have simultaneously on Linux is 4096. You can check the current number of threads running on your system with the following command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ps <span class="nt">-eo</span> nlwp | <span class="nb">awk</span> <span class="s1">'{ num_threads += $1 } END { print num_threads }'</span>
+</code></pre></div></div>
+
+<p>On my machine, I’ve already got 1505 threads running. Now, I’m no math genius, but I can assure you that 1505 + MAX_INT is not under 4096 .</p>
+
+<p>I KNOW !  you could increase this limit using <code class="language-plaintext highlighter-rouge">ulimit -u</code>, but let’s be real here: if someone’s testing more than 200 philosophers despite it being clearly marked on the correction criteria they aren’t exactly “the CPU with the highest clock speed.” They’re probably the kind of person who thinks more cores automatically means faster code, even if they don’t know what a context switch is.</p>
+
+<h2 id="3-overhead-scheduling">3) Overhead scheduling</h2>
+
+<p>When you ramp up the number of threads, you’re not just increasing the complexity of your program you’re also ramping up the overhead of context switching. What’s context switching, you ask? It’s when the CPU switches from one thread to another, and it’s not free. Each switch involves the CPU saving the state of the current thread and loading the state of the next one. The more threads you have, the more often this happens, and the more time your CPU spends just shuffling between threads instead of actually doing useful work.</p>
+
+<h3 id="cache-misses-a-hidden-cost-of-context-switching">Cache Misses: A Hidden Cost of Context Switching</h3>
+
+<p>Earlier, we discussed how each thread in a program requires its own stack space, consuming significant memory, especially when many threads are created. But the memory issue doesn’t stop there. When a thread is context-switched out, the data it was working on is likely still stored in the CPU cache. However, when a new thread is switched in, this new thread might need different data that isn’t in the cache, leading to a <strong>cache miss</strong>.</p>
+
+<p>A cache miss occurs when the CPU has to fetch data from the slower main memory instead of the faster cache. This can significantly slow down the execution of the new thread. The more threads you have, each with their own stack and data, the more likely it is that the data the CPU needs will not be in the cache when it switches to another thread. This increased likelihood of cache misses is a direct consequence of having a large number of threads, each with its own distinct memory footprint. I might explain it in more detail <a href="https://www.notion.so/CPU-Memory-fc91491e3d104cf99341290b51823069?pvs=21">here</a></p>
+
+<p><a href="https://www.notion.so/CPU-Memory-fc91491e3d104cf99341290b51823069?pvs=21">CPU Memory</a></p>
+
+<h3 id="quantifying-the-overhead">Quantifying the Overhead</h3>
+
+<p>To understand just how costly context switching can be, we can calculate the overhead incurred per switch with a simple formula:</p>
+
+\[\text{Overhead per switch} = \frac{\text{Total CPU time in kernel mode (seconds)}}{\text{Number of context switches}}\]
+
+<p>with the <code class="language-plaintext highlighter-rouge">perf</code> tool we can have data  on context switch for the process</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="nb">sudo </span>perf <span class="nb">stat</span> <span class="nt">-e</span> sched:sched_switch ./philo 20 410 100 100 10000
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">perf stat</code>:</strong> Collects performance statistics.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">-e sched:sched_switch</code>:</strong> Tracks the number of context switches (when the CPU switches between threads).</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Performance counter stats <span class="k">for</span> <span class="s1">'./philo 20 410 100 100 10000'</span>:
+
+     38,501,336      sched:sched_switch
+
+     139.977705937 seconds <span class="nb">time </span>elapsed
+
+     42.839705000 seconds user
+     127.390391000 seconds sys
+</code></pre></div></div>
+
+<h3 id="data-for-20-philosophers">Data for 20 Philosophers:</h3>
+
+<ul>
+  <li><strong>Number of context switches</strong>: 38,501,336</li>
+  <li><strong>CPU time in kernel mode</strong>: 127.3904 seconds</li>
+  <li><strong>Overhead per context switch</strong>:</li>
+</ul>
+
+\[Overhead\ per\ switch=\frac{127.3904\ seconds }{38, 501,336}≈3.31 \ microseconds\]
+
+<ul>
+  <li><strong>Percentage of CPU time spent on context switches</strong>:</li>
+</ul>
+
+\[Overhead\ percentage=\frac{127.3904 \ seconds}{170.2301\ seconds}×100≈74.85\%\]
+
+<h3 id="data-for-200-philosophers">Data for 200 Philosophers:</h3>
+
+<ul>
+  <li><strong>Number of context switches</strong>: 73,699,698</li>
+  <li><strong>CPU time in kernel mode</strong>: 175.8109 seconds</li>
+  <li><strong>Overhead per context switch</strong>:</li>
+</ul>
+
+\[Overhead\ per\ switch=\frac{175.8109\ seconds }{73,699,698}≈2.38 \ microseconds\]
+
+<ul>
+  <li><strong>Percentage of CPU time spent on context switches</strong>:</li>
+</ul>
+
+\[Overhead\ percentage=\frac{175.8109 \ seconds}{227.3031\ seconds}×100≈77.33\%\]
+
+<p>What these BIG numbers tell us is that while context switching is unavoidable, increasing the number of threads can significantly increase this overhead. With 200 philosophers, the CPU is almost entirely consumed by the overhead, leaving very little time for actual computation. This is why there’s a practical limit to the number of threads you should be running. Pushing beyond that limit doesn’t just make your program more complex it actually makes it slower, as the CPU spends more time managing threads than doing the work those threads are supposed to accomplish.</p>
+
+<p>Additionally, more threads can lead to increased cache misses. When too many threads compete for limited cache space, data has to be fetched from slower memory, further slowing down your program. So, adding more threads might seem like a good idea, but beyond a certain point, it results in more time spent on management and memory access rather than actual work.</p>
+
+<p>So, next time you’re tempted to throw more threads at a problem, remember: there’s a point where you’re just making the CPU’s job harder, not faster.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>next time be kind with your CPU ☺️</p>
+
+<hr />
+
+<p>if you have other idea for stupid but important article you can contact me on  ̶t̶w̶i̶t̶t̶e̶r̶   x</p>
+
+<h2 id="my-x">My X</h2>
+
+<p><a href="https://x.com/barnabait">bonsthie (@barnabait) on X</a></p>
+
+<h2 id="my-github">My Github</h2>
+
+<p><a href="https://github.com/bonsthie">bonsthie - Overview</a></p>
+
+
+
+  <small>tags: <em></em></small>
+
+
+</article>
+
+
+      </section>
+      <footer>
+        
+        <p>This project is maintained by <a href="https://github.com/bonsthie">bonsthie</a></p>
+        
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="/assets/js/scale.fix.js"></script>
+  </body>
+</html>
