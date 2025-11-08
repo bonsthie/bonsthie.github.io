@@ -1,4 +1,4 @@
-import FlexSearch from "flexsearch"
+import FlexSearch, { DefaultDocumentSearchResults } from "flexsearch"
 import { ContentDetails } from "../../plugins/emitters/contentIndex"
 import { registerEscapeHandler, removeAllChildren } from "./util"
 import { FullSlug, normalizeRelativeURLs, resolveRelative } from "../../util/path"
@@ -9,15 +9,21 @@ interface Item {
   title: string
   content: string
   tags: string[]
+  [key: string]: any
 }
 
 // Can be expanded with things like "term" in the future
 type SearchType = "basic" | "tags"
 let searchType: SearchType = "basic"
 let currentSearchTerm: string = ""
-const encoder = (str: string) => str.toLowerCase().split(/([^a-z]|[^\x00-\x7F])/)
+const encoder = (str: string) => {
+  return str
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((token) => token.length > 0)
+}
+
 let index = new FlexSearch.Document<Item>({
-  charset: "latin:extra",
   encode: encoder,
   document: {
     id: "id",
@@ -147,8 +153,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   const container = searchElement.querySelector(".search-container") as HTMLElement
   if (!container) return
 
-  const sidebar = container.closest(".sidebar") as HTMLElement
-  if (!sidebar) return
+  const sidebar = container.closest(".sidebar") as HTMLElement | null
 
   const searchButton = searchElement.querySelector(".search-button") as HTMLButtonElement
   if (!searchButton) return
@@ -180,7 +185,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   function hideSearch() {
     container.classList.remove("active")
     searchBar.value = "" // clear the input when we dismiss the search
-    sidebar.style.zIndex = ""
+    if (sidebar) sidebar.style.zIndex = ""
     removeAllChildren(results)
     if (preview) {
       removeAllChildren(preview)
@@ -192,7 +197,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
   function showSearch(searchTypeNew: SearchType) {
     searchType = searchTypeNew
-    sidebar.style.zIndex = "1"
+    if (sidebar) sidebar.style.zIndex = "1"
     container.classList.add("active")
     searchBar.focus()
   }
@@ -221,7 +226,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
     // If search is active, then we will render the first result and display accordingly
     if (!container.classList.contains("active")) return
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.isComposing) {
       // If result has focus, navigate to that one, otherwise pick first result
       if (results.contains(document.activeElement)) {
         const active = document.activeElement as HTMLInputElement
@@ -301,9 +306,11 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     itemTile.classList.add("result-card")
     itemTile.id = slug
     itemTile.href = resolveUrl(slug).toString()
-    itemTile.innerHTML = `<h3>${title}</h3>${htmlTags}${
-      enablePreview && window.innerWidth > 600 ? "" : `<p>${content}</p>`
-    }`
+    itemTile.innerHTML = `
+      <h3 class="card-title">${title}</h3>
+      ${htmlTags}
+      <p class="card-description">${content}</p>
+    `
     itemTile.addEventListener("click", (event) => {
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
       hideSearch()
@@ -396,7 +403,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     searchLayout.classList.toggle("display-results", currentSearchTerm !== "")
     searchType = currentSearchTerm.startsWith("#") ? "tags" : "basic"
 
-    let searchResults: FlexSearch.SimpleDocumentSearchResultSetUnit[]
+    let searchResults: DefaultDocumentSearchResults<Item>
     if (searchType === "tags") {
       currentSearchTerm = currentSearchTerm.substring(1).trim()
       const separatorIndex = currentSearchTerm.indexOf(" ")
@@ -409,7 +416,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
           // return at least 10000 documents, so it is enough to filter them by tag (implemented in flexsearch)
           limit: Math.max(numSearchResults, 10000),
           index: ["title", "content"],
-          tag: tag,
+          tag: { tags: tag },
         })
         for (let searchResult of searchResults) {
           searchResult.result = searchResult.result.slice(0, numSearchResults)
