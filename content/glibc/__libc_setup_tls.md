@@ -1,6 +1,6 @@
 > 🧵 **Summary:**  
 > you could find the entire code [here](__libc_setup_tls_code.md)
-> As the function name suggests, `__libc_setup_tls` initializes the **Thread-Local Storage ([TLS](tls))** for the main thread by:
+> As the function name suggests, `__libc_setup_tls` initializes the **Thread-Local Storage ([TLS](tls.md))** for the main thread by:
 
 - Searching for the TLS segment in the binary (via `.tdata` and `.tbss`) and extracting size/alignment info
     
@@ -10,7 +10,7 @@
 
 note :
 
-`dl_tls_static_align` is base on the TCB_ALIGNMENT but could be change if the [tls](tls) has a bigger alignment
+`dl_tls_static_align` is base on the TCB_ALIGNMENT but could be change if the [tls](tls.md) has a bigger alignment
 
 the function use only brk for allocation to avoid using malloc because of errno who is a tls var
 

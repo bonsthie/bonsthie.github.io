@@ -16,7 +16,7 @@ you could find the full code [here](allocate_stack_thread_code)
 
 the `__getpagesize` on **x86_64** just return an hard coded value of **`4096`** i would of thought this was base on the [cpuid](https://fr.wikipedia.org/wiki/CPUID) 
 
-the `__nptl_tls_static_size_for_stack()` is set at the end of the libc in the [`__libc_setup_tls()`](__libc_setup_tls.md) with the function [`init_static_tls()`](init_static_tls.md) this will init the [tls](tls)
+the `__nptl_tls_static_size_for_stack()` is set at the end of the libc in the [`__libc_setup_tls()`](__libc_setup_tls.md) with the function [`init_static_tls()`](init_static_tls.md) this will init the [tls](tls.md)
 
 ---
 

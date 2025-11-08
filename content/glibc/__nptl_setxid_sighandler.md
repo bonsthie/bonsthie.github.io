@@ -108,7 +108,7 @@ struct xid_command
     
     - What syscall to perform (e.g. `setresuid`)
     - What arguments to pass
-    - How to synchronize completion ([`cntr`](cntr))
+    - How to synchronize completion ([`cntr`](cntr.md))
     - What error status occurred (if any)
 
 ---

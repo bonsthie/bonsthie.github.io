@@ -6,7 +6,7 @@ TLS (Thread-Local Storage) is a mechanism that allows each thread in a multithre
 
 ## 📦 Where is it Stored?
 
-In [ELF](elf) (Executable and Linkable Format) binaries, TLS data is stored in **two sections**:
+In [ELF](elf%20info.md) (Executable and Linkable Format) binaries, TLS data is stored in **two sections**:
 
 - `.tdata`: contains **initialized** thread-local variables (e.g. `__thread int x = 5;`)
     

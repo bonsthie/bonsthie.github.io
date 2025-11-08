@@ -3,7 +3,7 @@
 > 🧵 **Summary:**  
 > Called once by the **first thread** to enable multi-threading support and set up signal handling for:
 > 
-> - [UID/GID](UID%20GID) synchronization using `SIGSETXID`
+> - [UID/GID](UID%20GID.md) synchronization using `SIGSETXID`
 > - Thread cancellation (`pthread_cancel()`) using `SIGCANCEL`
 
 This ensures both UID/GID changes and cancellation work correctly across all threads in the process.
@@ -78,7 +78,7 @@ INTERNAL_SYSCALL_CALL(rt_sigprocmask, SIG_UNBLOCK, &sa.sa_mask,
                       NULL, __NSIG_BYTES);
 ```
 
-> ⚠️ **Note:** This is only useful when using `setuid`, `setgid`, etc. — and can be ignored if you're not handling [UID/GID](UID%20GID) changes.
+> ⚠️ **Note:** This is only useful when using `setuid`, `setgid`, etc. — and can be ignored if you're not handling [UID/GID](UID%20GID.md) changes.
 
 ---
 
