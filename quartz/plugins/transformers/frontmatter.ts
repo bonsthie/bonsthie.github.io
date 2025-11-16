@@ -3,6 +3,7 @@ import remarkFrontmatter from "remark-frontmatter"
 import { QuartzTransformerPlugin } from "../types"
 import yaml from "js-yaml"
 import toml from "toml"
+import { Buffer } from "node:buffer"
 import { FilePath, FullSlug, getFileExtension, slugifyFilePath, slugTag } from "../../util/path"
 import { QuartzPluginData } from "../vfile"
 import { i18n } from "../../i18n"
@@ -62,14 +63,27 @@ export const FrontMatter: QuartzTransformerPlugin<Partial<Options>> = (userOpts)
         [remarkFrontmatter, ["yaml", "toml"]],
         () => {
           return (_, file) => {
-            const fileData = Buffer.from(file.value as Uint8Array)
-            const { data } = matter(fileData, {
-              ...opts,
-              engines: {
-                yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA }) as object,
-                toml: (s) => toml.parse(s) as object,
-              },
-            })
+			let rawStr: string
+
+          	if (typeof file.value === "string") {
+          	  rawStr = file.value
+          	} else if (file.value instanceof Uint8Array) {
+          	  rawStr = new TextDecoder("utf-8").decode(file.value)
+          	} else if (Buffer.isBuffer(file.value)) {
+          	  rawStr = file.value.toString("utf-8")
+          	} else if (file.value == null) {
+          	  rawStr = ""
+          	} else {
+          	  rawStr = String(file.value)
+          	}
+
+	        const { data } = matter(rawStr, {
+	          ...opts,
+	          engines: {
+	            yaml: (s) => yaml.load(s, { schema: yaml.JSON_SCHEMA }) as object,
+	            toml: (s) => toml.parse(s) as object,
+	          },
+	        })
 
             if (data.title != null && data.title.toString() !== "") {
               data.title = data.title.toString()
