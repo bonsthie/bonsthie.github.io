@@ -11,8 +11,12 @@ The book also does an excellent job covering OS fundamentals and includes a grea
 i not finish reading but you will be able to find my note [here](ARM%20ASSEMBLY%20INTERNALS%20&%20REVERSE%20ENGINEERING%20NOTE)
 
 ## [SSA BASE COMPILER DESIGN](https://link.springer.com/book/10.1007/978-3-030-80515-9)
-i'm really at the start start of this book. This will be to learn in more detail about ssa and make the ssa form for the [scc](index#SCC%20--%20SIMPL%20C%20Compiler) compiler
+I'm really at the very start of this book. This will help me learn in more detail about SSA and create the SSA form for the [SCC](index#SCC%20--%20SIMPL%20C%20Compiler) compiler. This book excites me a lot, but for now I have two other books to finish before starting it. To be honest, the main reason I haven't read it yet is that it's the only book I don't have in paper.
 
+## [Performance Analysis and Tuning on Modern CPUs](https://www.amazon.com/Performance-Analysis-Tuning-Modern-CPUs/dp/B0DMVQ1QDD)
+I’ve only read about one third of this book, and it has already helped me solidify my understanding of CPU architecture. It’s a shame that no one wanted to publish it, because even unfinished, it is one of the books that has taught me the most.
+
+need to upload my notes..
 
 # FINISH
 ---

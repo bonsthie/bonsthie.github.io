@@ -2,9 +2,9 @@
 there is 3 profile of arm ship
 
 # Base of the ARCH
-A: "application" -> ex : phone, lapto, IOT
-R: designed for hard real-time or safety-critical systems -> ex : medical, HDD controllers
-M: microcontroller -> ex : embedded,  Bluetooth, GPS
+- A: "application" -> ex : phone, laptop, IOT
+- R: designed Ffor hard real-time or safety-critical systems -> ex : medical, HDD controllers
+- M: microcontroller -> ex : embedded,  Bluetooth, GPS
 
 - arm v7 -> aarch32
 - arm v8 -> aarch64/aarch32
@@ -140,7 +140,7 @@ add x0, x1, x1, LSL #1 ; ADD (shifted register)
 ### Constant
 ![[arm_process_instr_mapping.png]]
 ### Imm Encoding (A64)
-- Immediate = **12-bit** + optional **<< 12** shift  → can encode 0–4095 or multiples of 4096.
+- Immediate = **12-bit** + optional **<< 12** shift  → can encode 0–4095 or multiples of 4096.1
 
 the sh bit is usefull for this like :
 - page size

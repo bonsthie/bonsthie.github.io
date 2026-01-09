@@ -1,3 +1,4 @@
+#arm 
 in a lot of chip what makes the power efficient is not the architecture but the [[ARM ASSEMBLY INTERNALS & REVERSE ENGINEERING NOTE#Diff between arch and micro-arch|micro-architecture]] that why you can see x86 cpu having a better power concemption than some arm chip.
 
 but arm is more designed for low power this is manly due to :
