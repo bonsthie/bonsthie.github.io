@@ -43,8 +43,13 @@ This is currently closed-source, but the name explains itself: it's the compiler
 A write-up exploring the Clang main path to better understand how the Clang frontend works.
 
 #### [LLVM tutorial backend](https://github.com/bonsthie/llvm-project/tree/H2BLB-custom-backend)
-A backend implemented by following Quentin Collombet's _LLVM Code Generation_ book, it helped me understand the LLVM backend flow.
+A backend implemented by following [[books read#[LLVM CODE GENERATION](https //www.oreilly.com/library/view/llvm-code-generation/9781837637782/)|Quentin Collombet's _LLVM Code Generation_ book]], it helped me understand the LLVM backend flow.
+- Designed the backend architecture, including instruction formats, register classes, and calling conventions; integrated it into LLVM’s code generation pipeline.
+- Implemented GlobalISel support, covering legalization, register-bank info, instruction selection, and a
+- pre-legalizer combiner; wired it into the H2BLB pass pipeline.
+- Added a target-specific optimization pass for H2BLB, implementing constant propagation and integrating it with both the legacy and new pass managers.
 
+more info in the source code `readme`
 #### Contributions
 I contributed to the x86 GlobalISel backend in LLVM. I’m currently (in my free time, which is limited) working on fixing issues around vector index instructions
 

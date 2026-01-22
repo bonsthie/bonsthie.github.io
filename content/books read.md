@@ -16,9 +16,9 @@ I'm really at the very start of this book. This will help me learn in more detai
 ## [Performance Analysis and Tuning on Modern CPUs](https://www.amazon.com/Performance-Analysis-Tuning-Modern-CPUs/dp/B0DMVQ1QDD)
 I’ve only read about one third of this book, and it has already helped me solidify my understanding of CPU architecture. It’s a shame that no one wanted to publish it, because even unfinished, it is one of the books that has taught me the most.
 
-need to upload my notes..
+[[Performance Analysis and Tuning on Modern CPUs Note|Note]]
 
-# FINISH
+# FINISHED
 ---
 ## [LLVM CODE GENERATION](https://www.oreilly.com/library/view/llvm-code-generation/9781837637782/)
 This book was really interesting and helped me solidify my understanding of LLVM’s middle and backend. I particularly appreciated that it covers not only code generation itself, but also topics like contributing to LLVM, understanding the folder architecture, and debugging.
@@ -30,7 +30,7 @@ Before reading this book, I thought the IR was completely architecture-agnostic 
 you can find my note [here](LLVM%20CODE%20GENERATION%20NOTE)
 
 ## [# Intel Xeon Phi Processor High Performance Programming, 2nd Edition](https://www.oreilly.com/library/view/intel-xeon-phi/9780128091951/)
-I read this book because we acceier 12 xeon phi node for a project of HPC that aim to run I read this book because we received 12 Xeon Phi nodes for an HPC project aimed at running optimized black hole simulations on this small cluster. Sadly, the project never saw the light of day -- but that didn’t stop me from diving into the architecture anyway!
+I read this book because we received 12 Xeon Phi nodes for an HPC project aimed at running optimized black hole simulations on this small cluster. Sadly, the project never saw the light of day -- but that didn’t stop me from diving into the architecture anyway!
 
 This book was both interesting and frustrating. Sometimes it spends ten pages explaining very basic concepts, and then suddenly introduces an advanced one in just ten lines. Still, I really enjoyed the first part It was my first exposure to the concept of NUMA, which turns out to be _really_ important on a 64-core CPU.
 
