@@ -42,7 +42,7 @@ From Chapter 9 onward, the book guides you through building a full backend from 
 
 Before reading this book, I thought the IR was completely architecture-agnostic compared to the MIR, but that’s not true -- IR passes already take into account things like target sizes and calling conventions. You can even make IR pass specially for a architecture.
 
-you can find my note here
+you can find my note [[LLVM CODE GENERATION NOTE|here]]
 
 ## # Intel Xeon Phi Processor High Performance Programming, 2nd Edition
 
