@@ -77,13 +77,13 @@ However, `-Wl,-rpath=bin/lib` is more concise and easier to read.
 
 ### Summary Table
 
-| Flag | For | Purpose |
-|------|-----|---------|
-| `-Wl,` | Linker | Pass options to `ld` |
-| `-Wa,` | Assembler | Pass options to `as` |
-| `-Wp,` | Preprocessor | Pass options to `cpp` |
-| `-Xlinker` | Linker | Pass a single linker flag |
-| `-Xassembler` | Assembler | Pass a single assembler flag |
+| Flag             | For          | Purpose                         |
+| ---------------- | ------------ | ------------------------------- |
+| `-Wl,`           | Linker       | Pass options to `ld`            |
+| `-Wa,`           | Assembler    | Pass options to `as`            |
+| `-Wp,`           | Preprocessor | Pass options to `cpp`           |
+| `-Xlinker`       | Linker       | Pass a single linker flag       |
+| `-Xassembler`    | Assembler    | Pass a single assembler flag    |
 | `-Xpreprocessor` | Preprocessor | Pass a single preprocessor flag |
 
 ---
