@@ -470,3 +470,5 @@ To collect performance metrics, I used the toplev.py script from Andi Kleen’s 
 ### 5. System Limits
 - **DRAM Bandwidth:** Compare your measured GB/s against your RAM’s theoretical max.
     - If you are near the limit (~70-80%+), adding more threads will actually **slow down** the program due to contention (CloverLeaf).
+
+#

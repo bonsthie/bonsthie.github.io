@@ -1,54 +1,6 @@
  ## Frontend
 ![[Block diagram of a CPU Frontend core.png]]
 
-```mehrmaid
-graph TD
-  subgraph Phase1_The_Map_Cache
-    A["Current PC (Instruction Pointer)"] --> B{"BTB (Branch Target Buffer)<br/>Have we been here before?"}
-    B -->|Hit| B1["Predict exact target address instantly"]
-    B -->|Miss| B2["Guess we just go to the next line"]
-  end
-
-  subgraph Phase2_The_Raw_Material_Cache
-    B1 --> C{"L1 Instruction Cache (32KB)<br/>Are the raw bytes stored locally?"}
-    B2 --> C
-    C -->|Hit| D["Fetch bytes instantly at 32 bytes/cycle"]
-    C -->|Miss| D_Miss["STALL: Wait for slow L2/L3 Cache or RAM"]
-    D_Miss -.-> D
-    D --> E["Pre-decode identifies instruction length"]
-    E --> F["Instruction Queue"]
-  end
-
-  subgraph Phase3_The_Effort_Cache
-    F --> G{"µop Cache (4k entries)<br/>Did we already decode this recently?"}
-    G -->|Hit: The Fast Path| I["BYPASS DECODERS!<br/>Deliver 8 pre-built µops/cycle"]
-    G -->|Miss: The Slow Path| J["6-way Decoder powers up<br/>Translates complex x86 to µops (6/cycle)"]
-  end
-
-  subgraph Phase4_Execution_Prep
-    J --> U1["µop 1: Calc Address"]
-    J --> U2["µop 2: Load Data"]
-    J --> U3["µop 3: Add Math"]
-    
-    U1 --> Q["Instruction Decode Queue (144 µops)<br/>Buffer to keep Backend fed"]
-    U2 --> Q
-    U3 --> Q
-    
-    I -->|Direct Injection| Q
-  end
-
-  subgraph Phase5_Backend
-    Q --> R["Rename & Allocate"]
-    R --> S["Out-of-Order Execution Engine"]
-  end
-  
-  %% Styling
-  style B fill:#f9d0c4,stroke:#333,color:#000000
-  style C fill:#f9d0c4,stroke:#333,color:#000000
-  style G fill:#c4e1f9,stroke:#333,stroke-width:2px,color:#000000
-  style I fill:#d4f9c4,stroke:#333,color:#000000
-  style D_Miss fill:#f9c4c4,stroke:#333,stroke-dasharray: 5 5,color:#000000
-```
 > This graph is missing the MSROM and predecode link with the BPU, but I can't get this to render properly.
 ### Branch Prediction Unit (BPU)
 - Predicts **next fetch address**
