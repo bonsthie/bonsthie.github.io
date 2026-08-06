@@ -1,3 +1,4 @@
-[submodule "obsidian-vault"]
-	path = obsidian-vault
+[submodule "content"]
+	path = content
 	url = https://github.com/bonsthie/obsidian-vault.git
+	branch = master
